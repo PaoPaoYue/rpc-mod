@@ -45,8 +45,6 @@ tasks.jar {
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    println(project.findProperty("env"))
-
     if (project.findProperty("env") == "prod") {
         exclude("application-dev.properties")
     } else {

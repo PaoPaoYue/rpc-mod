@@ -1,15 +1,14 @@
 package com.github.paopaoyue.rpcmod;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.ResourceLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +19,7 @@ import java.util.Properties;
 @SpringBootApplication(
         exclude = GsonAutoConfiguration.class
 )
+@ComponentScan(basePackages = "com.github")
 public class RpcApp{
 
     private static final String INDICATOR = "application-dev.properties";
@@ -44,9 +44,6 @@ public class RpcApp{
                 .properties(properties)
                 .run();
 
-        for (String name: context.getBeanDefinitionNames()) {
-            System.out.println(name);
-        }
     }
 
     private static Properties loadProperties(String propertiesFile) {
