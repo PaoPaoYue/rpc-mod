@@ -24,6 +24,16 @@ configurations {
     }
 }
 
+sourceSets {
+    val env = project.findProperty("env")?.toString() ?: "dev"
+
+    main {
+        resources {
+            setSrcDirs(listOf("src/main/resources/$env"))
+        }
+    }
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
@@ -42,15 +52,7 @@ tasks.test {
 
 tasks.jar {
     archiveClassifier.set("stsMod")
-
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    if (project.findProperty("env") == "prod") {
-        exclude("application-dev.properties")
-    } else {
-        exclude("application-prod.properties")
-    }
-
     configurations["compileClasspath"].forEach { _: File ->
         from({
             configurations.compileClasspath.get().filter {
@@ -73,7 +75,7 @@ tasks.register<Delete>("cleanPublishFolder") {
     delete(fileTree("E:\\Steam Games\\steamapps\\common\\SlayTheSpire\\rpc-mod\\content") { include("*.jar") })
 }
 
-tasks.register<Copy>("deployToTestFolder") {
+tasks.register<Copy>("deployToDevFolder") {
     dependsOn(tasks.clean, tasks.jar)
     from(layout.buildDirectory.dir("libs"))
     include("*.jar")
@@ -88,7 +90,7 @@ tasks.register<Copy>("deployToPublishFolder") {
 }
 
 tasks.register<Exec>("runGame") {
-    dependsOn(":cleanTestFolder", ":deployToTestFolder")
+    dependsOn(":deployToTestFolder")
     workingDir("E:\\Steam Games\\steamapps\\common\\SlayTheSpire")
     commandLine("cmd", "/c", "java -jar mts-launcher.jar")
 }

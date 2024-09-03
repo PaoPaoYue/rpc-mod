@@ -1,0 +1,16 @@
+{
+  "modid": "Ypp rpc - prod",
+  "name": "Ypp RPC Base Mod",
+  "author_list": [
+    "PaoPaoYue"
+  ],
+  "description": "Author:PaoPaoYue Email：paopaoyue.dev@gmail.com",
+  "version": "0.1.0",
+  "sts_version": "12-12-2020",
+  "mts_version": "3.10.1",
+  "dependencies": [
+    "basemod"
+  ]
+}
+
+

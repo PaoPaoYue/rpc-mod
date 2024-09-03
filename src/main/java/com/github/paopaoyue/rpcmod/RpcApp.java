@@ -1,5 +1,7 @@
 package com.github.paopaoyue.rpcmod;
 
+import com.evacipated.cardcrawl.modthespire.Loader;
+import com.evacipated.cardcrawl.modthespire.ModInfo;
 import org.springframework.boot.Banner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.Properties;
 
 @SpringBootApplication(
@@ -22,15 +25,22 @@ import java.util.Properties;
 @ComponentScan(basePackages = "com.github")
 public class RpcApp{
 
-    private static final String INDICATOR = "application-dev.properties";
-    private static final String DEV_PROPERTIES = "application-dev.properties";
-    private static final String PROD_PROPERTIES = "application-prod.properties";
+    private static final String DEV_PROPERTIES = "dev/application-dev.properties";
+    private static final String TEST_PROPERTIES = "dev/application-test.properties";
+    private static final String PROD_PROPERTIES = "prod/application-prod.properties";
 
     static ConfigurableApplicationContext context;
 
     static void initializeClient(ClassLoader classLoader) {
-        String env = new ClassPathResource(INDICATOR).exists() ? "prod" : "dev";
-        Properties properties = loadProperties("dev".equals(env) ? DEV_PROPERTIES : PROD_PROPERTIES);
+        String env = getEnv();
+        Properties properties;
+        if ("dev".equals(env)) {
+            properties = loadProperties(DEV_PROPERTIES);
+        } else if ("test".equals(env)) {
+            properties = loadProperties(TEST_PROPERTIES);
+        } else {
+            properties = loadProperties(PROD_PROPERTIES);
+        }
         if (properties == null) {
             throw new IllegalArgumentException("Properties file not found: " + DEV_PROPERTIES + " or " + PROD_PROPERTIES);
         }
@@ -44,6 +54,20 @@ public class RpcApp{
                 .properties(properties)
                 .run();
 
+    }
+
+    static String getEnv() {
+        ModInfo info = Arrays.stream(Loader.MODINFOS)
+                .filter(modInfo -> modInfo.ID.startsWith("Ypp rpc"))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Ypp rpc mod not loaded"));
+        if (info.ID.endsWith("dev")) {
+            return "dev";
+        } else if (info.ID.endsWith("test")) {
+            return "test";
+        } else {
+            return "prod";
+        }
     }
 
     private static Properties loadProperties(String propertiesFile) {
