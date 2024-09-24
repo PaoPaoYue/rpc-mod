@@ -2,7 +2,7 @@ plugins {
     id("java")
     id("org.springframework.boot") version ("2.7.18")
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
-    id("io.github.paopaoyue.ypp-rpc-generator") version "0.0.18-jdk8"
+    id("io.github.paopaoyue.ypp-rpc-generator") version "0.0.26-jdk8"
 }
 
 group = "com.github.paopaoyue"
@@ -67,7 +67,7 @@ tasks.jar {
     }
 }
 
-tasks.register<Delete>("cleanTestFolder") {
+tasks.register<Delete>("cleanDevFolder") {
     delete(fileTree("E:\\Steam Games\\steamapps\\common\\SlayTheSpire\\mods") { include("*.jar") })
 }
 
