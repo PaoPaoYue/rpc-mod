@@ -19,7 +19,7 @@ public class RpcMod implements PostInitializeSubscriber {
 
     private static final Logger logger = LogManager.getLogger(RpcMod.class);
 
-    public static final String MOD_ID = "Ypp rpc";
+    public static final String MOD_ID = "ypp-rpc";
 
     public RpcMod() {
         BaseMod.subscribe(this);
