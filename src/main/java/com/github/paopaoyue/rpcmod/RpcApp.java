@@ -2,6 +2,7 @@ package com.github.paopaoyue.rpcmod;
 
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.ModInfo;
+import org.lwjgl.Sys;
 import org.springframework.boot.Banner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,8 +27,8 @@ import java.util.Properties;
 public class RpcApp{
 
     private static final String DEV_PROPERTIES = "application.properties";
-    private static final String TEST_PROPERTIES = "https://github.com/PaoPaoYue/rpc-mod/blob/master/src/main/resources/test/application-test.properties";
-    private static final String PROD_PROPERTIES = "https://github.com/PaoPaoYue/rpc-mod/blob/master/src/main/resources/test/application-prod.properties";
+    private static final String TEST_PROPERTIES = "https://raw.githubusercontent.com/PaoPaoYue/rpc-mod/refs/heads/master/src/main/resources/test/application-test.properties";
+    private static final String PROD_PROPERTIES = "https://raw.githubusercontent.com/PaoPaoYue/rpc-mod/refs/heads/master/src/main/resources/prod/application-prod.properties";
 
     static ConfigurableApplicationContext context;
 
@@ -58,12 +59,12 @@ public class RpcApp{
 
     static String getEnv() {
         ModInfo info = Arrays.stream(Loader.MODINFOS)
-                .filter(modInfo -> modInfo.ID.startsWith("Ypp rpc"))
+                .filter(modInfo -> modInfo.ID.startsWith(RpcMod.MOD_ID))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Ypp rpc mod not loaded"));
-        if (info.ID.endsWith("dev")) {
+        if (info.Name.endsWith("Dev")) {
             return "dev";
-        } else if (info.ID.endsWith("test")) {
+        } else if (info.Name.endsWith("Test")) {
             return "test";
         } else {
             return "prod";
