@@ -27,8 +27,8 @@ import java.util.Properties;
 public class RpcApp{
 
     private static final String DEV_PROPERTIES = "application.properties";
-    private static final String TEST_PROPERTIES = "https://raw.githubusercontent.com/PaoPaoYue/rpc-mod/refs/heads/master/src/main/resources/test/application-test.properties";
-    private static final String PROD_PROPERTIES = "https://raw.githubusercontent.com/PaoPaoYue/rpc-mod/refs/heads/master/src/main/resources/prod/application-prod.properties";
+    private static final String TEST_PROPERTIES = "application-test.properties";
+    private static final String PROD_PROPERTIES = "application-prod.properties";
 
     static ConfigurableApplicationContext context;
 
