@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Properties;
 
 @SpringBootApplication(
@@ -29,8 +30,11 @@ import java.util.Properties;
 public class RpcApp{
 
     private static final String DEV_PROPERTIES = "https://pastebin.com/raw/atatbLyz";
+    private static final String FALLBACK_DEV_PROPERTIES = "application.properties";
     private static final String TEST_PROPERTIES = "https://pastebin.com/raw/mGvNQfu3";
+    private static final String FALLBACK_TEST_PROPERTIES = "application-test.properties";
     private static final String PROD_PROPERTIES = "https://pastebin.com/raw/tjD5Cxk9";
+    private static final String FALLBACK_PROD_PROPERTIES = "application-prod.properties";
 
     static ConfigurableApplicationContext context;
 
@@ -38,11 +42,11 @@ public class RpcApp{
         String env = getEnv();
         Properties properties;
         if ("dev".equals(env)) {
-            properties = loadProperties(DEV_PROPERTIES);
+            properties = Optional.ofNullable(loadProperties(DEV_PROPERTIES)).orElse(loadProperties(FALLBACK_DEV_PROPERTIES));
         } else if ("test".equals(env)) {
-            properties = loadProperties(TEST_PROPERTIES);
+            properties = Optional.ofNullable(loadProperties(TEST_PROPERTIES)).orElse(loadProperties(FALLBACK_TEST_PROPERTIES));
         } else {
-            properties = loadProperties(PROD_PROPERTIES);
+            properties = Optional.ofNullable(loadProperties(PROD_PROPERTIES)).orElse(loadProperties(FALLBACK_PROD_PROPERTIES));
         }
         if (properties == null) {
             throw new IllegalArgumentException("Properties file not found for env: " + env);
@@ -78,9 +82,14 @@ public class RpcApp{
             InputStream inputStream;
 
             if (isURL(propertiesFile)) {
-                URL url = new URL(propertiesFile);
-                URLConnection connection = url.openConnection();
-                inputStream = connection.getInputStream();
+                try {
+                    URL url = new URL(propertiesFile);
+                    URLConnection connection = url.openConnection();
+                    inputStream = connection.getInputStream();
+                } catch (Exception e) {
+                    RpcMod.logger.error("Failed to load properties file from URL: {} ,using fallback", propertiesFile, e);
+                    return null;
+                }
             } else {
                 inputStream = RpcApp.class.getClassLoader().getResourceAsStream(propertiesFile);
             }
@@ -91,6 +100,8 @@ public class RpcApp{
 
             Properties properties = new Properties();
             properties.load(inputStream);
+
+            RpcMod.logger.info("Loaded properties file from: {}", propertiesFile);
 
             for (String key : properties.stringPropertyNames()) {
                 System.setProperty(key, properties.getProperty(key));

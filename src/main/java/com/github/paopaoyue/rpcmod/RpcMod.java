@@ -17,7 +17,7 @@ import java.util.List;
 @SpireInitializer
 public class RpcMod implements PostInitializeSubscriber {
 
-    private static final Logger logger = LogManager.getLogger(RpcMod.class);
+    public static final Logger logger = LogManager.getLogger(RpcMod.class);
 
     public static final String MOD_ID = "ypp-rpc";
 
