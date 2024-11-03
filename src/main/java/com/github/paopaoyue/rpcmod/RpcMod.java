@@ -29,6 +29,10 @@ public class RpcMod implements PostInitializeSubscriber {
         new RpcMod();
     }
 
+    public static void sideload() {
+        new RpcMod();
+    }
+
     @Override
     public void receivePostInitialize() {
         try {

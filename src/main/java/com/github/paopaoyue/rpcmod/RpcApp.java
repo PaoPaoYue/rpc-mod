@@ -2,6 +2,8 @@ package com.github.paopaoyue.rpcmod;
 
 import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.ModInfo;
+import com.megacrit.cardcrawl.actions.common.DamageAction;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import org.lwjgl.Sys;
 import org.springframework.boot.Banner;
 import org.springframework.boot.WebApplicationType;
@@ -26,9 +28,9 @@ import java.util.Properties;
 @ComponentScan(basePackages = "com.github")
 public class RpcApp{
 
-    private static final String DEV_PROPERTIES = "application.properties";
-    private static final String TEST_PROPERTIES = "application-test.properties";
-    private static final String PROD_PROPERTIES = "application-prod.properties";
+    private static final String DEV_PROPERTIES = "https://pastebin.com/raw/atatbLyz";
+    private static final String TEST_PROPERTIES = "https://pastebin.com/raw/mGvNQfu3";
+    private static final String PROD_PROPERTIES = "https://pastebin.com/raw/tjD5Cxk9";
 
     static ConfigurableApplicationContext context;
 
@@ -59,7 +61,7 @@ public class RpcApp{
 
     static String getEnv() {
         ModInfo info = Arrays.stream(Loader.MODINFOS)
-                .filter(modInfo -> modInfo.ID.startsWith(RpcMod.MOD_ID))
+                .filter(modInfo -> modInfo.ID.endsWith(RpcMod.MOD_ID))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Ypp rpc mod not loaded"));
         if (info.Name.endsWith("Dev")) {
