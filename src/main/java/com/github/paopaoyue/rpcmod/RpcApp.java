@@ -42,11 +42,11 @@ public class RpcApp{
         String env = getEnv();
         Properties properties;
         if ("dev".equals(env)) {
-            properties = Optional.ofNullable(loadProperties(DEV_PROPERTIES)).orElse(loadProperties(FALLBACK_DEV_PROPERTIES));
+            properties = Optional.ofNullable(loadProperties(DEV_PROPERTIES)).orElseGet(() -> loadProperties(FALLBACK_DEV_PROPERTIES));
         } else if ("test".equals(env)) {
-            properties = Optional.ofNullable(loadProperties(TEST_PROPERTIES)).orElse(loadProperties(FALLBACK_TEST_PROPERTIES));
+            properties = Optional.ofNullable(loadProperties(TEST_PROPERTIES)).orElseGet(() -> loadProperties(FALLBACK_TEST_PROPERTIES));
         } else {
-            properties = Optional.ofNullable(loadProperties(PROD_PROPERTIES)).orElse(loadProperties(FALLBACK_PROD_PROPERTIES));
+            properties = Optional.ofNullable(loadProperties(PROD_PROPERTIES)).orElseGet(() -> loadProperties(FALLBACK_PROD_PROPERTIES));
         }
         if (properties == null) {
             throw new IllegalArgumentException("Properties file not found for env: " + env);
