@@ -85,6 +85,8 @@ public class RpcApp{
                 try {
                     URL url = new URL(propertiesFile);
                     URLConnection connection = url.openConnection();
+                    connection.setConnectTimeout(1000);
+                    connection.setReadTimeout(1000);
                     inputStream = connection.getInputStream();
                 } catch (Exception e) {
                     RpcMod.logger.error("Failed to load properties file from URL: {} ,using fallback", propertiesFile, e);
