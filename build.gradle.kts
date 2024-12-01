@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.github.paopaoyue"
-version = "0.1.1"
+version = "0.1.3"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -38,6 +38,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    implementation("com.squareup.okhttp3:okhttp:3.14.9")
+
 
     implementation(files("C:\\Users\\LENOVO\\Desktop\\projects\\mtsLib\\BaseMod.jar"))
     implementation(files("C:\\Users\\LENOVO\\Desktop\\projects\\mtsLib\\desktop-1.0.jar"))
