@@ -1,13 +1,11 @@
 package com.github.paopaoyue.rpcmod;
 
 import com.evacipated.cardcrawl.modthespire.Loader;
+import com.evacipated.cardcrawl.modthespire.MTSClassLoader;
 import com.evacipated.cardcrawl.modthespire.ModInfo;
-import com.megacrit.cardcrawl.actions.common.DamageAction;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.lwjgl.Sys;
 import org.springframework.boot.Banner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,19 +13,16 @@ import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.List;
 import java.util.Properties;
 
 @SpringBootApplication(
@@ -39,10 +34,11 @@ public class RpcApp{
     private static final String DEV_PROPERTIES = "application.properties";
     private static final String TEST_PROPERTIES = "application-test.properties";
     private static final String PROD_PROPERTIES = "application-prod.properties";
+    private static final String FALLBACK_PROPERTIES = "application-prod-fallback.properties";
 
     static ConfigurableApplicationContext context;
 
-    static void initializeClient(ClassLoader classLoader) {
+    static void initializeClient() {
         String env = getEnv();
         Properties properties;
         if ("dev".equals(env)) {
@@ -55,16 +51,26 @@ public class RpcApp{
         if (properties == null) {
             throw new IllegalArgumentException("Properties file not found for env: " + env);
         }
+        try {
+            initialize(properties);
+        } catch (IOException | IllegalAccessException e) {
+            RpcMod.logger.error("Failed to initialize client", e);
+        }
+    }
 
-        Thread.currentThread().setContextClassLoader(classLoader);
-        context = new SpringApplicationBuilder()
-                .sources(RpcApp.class)
-                .resourceLoader(new DefaultResourceLoader(classLoader))
-                .bannerMode(Banner.Mode.OFF)
-                .web(WebApplicationType.NONE)
-                .properties(properties)
-                .run();
-
+    static void initializeFallbackClient() {
+        if (!getEnv().equals("prod")) {
+            throw new IllegalArgumentException("Only prod env supports fallback client");
+        }
+        Properties properties = loadProperties(FALLBACK_PROPERTIES);
+        if (properties == null) {
+            throw new IllegalArgumentException("Properties file not found for fallback");
+        }
+        try {
+            initialize(properties);
+        } catch (IOException | IllegalAccessException e) {
+            RpcMod.logger.error("Failed to initialize client", e);
+        }
     }
 
     static String getEnv() {
@@ -79,6 +85,22 @@ public class RpcApp{
         } else {
             return "prod";
         }
+    }
+
+    private static void initialize(Properties properties) throws IOException, IllegalAccessException {
+        if (context != null) {
+            context.close();
+        }
+        MTSClassLoader classLoader = new MTSClassLoader(Loader.class.getResourceAsStream("/corepatches.jar"),
+                buildUrlArray(Loader.MODINFOS), RpcMod.class.getClassLoader());
+        Thread.currentThread().setContextClassLoader(classLoader);
+        context = new SpringApplicationBuilder()
+                .sources(RpcApp.class)
+                .resourceLoader(new DefaultResourceLoader(classLoader))
+                .bannerMode(Banner.Mode.OFF)
+                .web(WebApplicationType.NONE)
+                .properties(properties)
+                .run();
     }
 
     private static Properties loadProperties(String propertiesFile) {
@@ -130,6 +152,16 @@ public class RpcApp{
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private static URL[] buildUrlArray(ModInfo[] modInfos) {
+        List<URL> urls = new ArrayList<>(modInfos.length + 1);
+
+        for (ModInfo modInfo : modInfos) {
+            urls.add(modInfo.jarURL);
+        }
+
+        return urls.toArray(new URL[0]);
     }
 
 }
